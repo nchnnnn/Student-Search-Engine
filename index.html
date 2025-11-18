@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Record System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Student Search Engine (SSE)</h1>
+            <p>Data Structures & Algorithms </p>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>🔍 Binary Search (Search by Name)</label>
+                <div class="control-row">
+                    <input type="text" id="searchInput" placeholder="Enter student name (e.g., Escal)">
+                    <select name="filter"  id="filter">
+                        <option selected onclick="displayLinkedList()" value="all">All</option>
+                        <option onclick="sortStudents('asc')"  value="asc">Grades (ASC)</option>
+                        <option onclick="sortStudents('desc')"  value="desc">Grades (DESC)</option>
+                        <option onclick="sortStudents('name')"  value="name">By Name</option>
+
+                    </select>
+                    <button class="btn-primary" onclick="binarySearchStudent()">Search</button>
+                </div>
+            </div>
+
+           
+            <div class="control-action">
+                <div class="action-container">
+                    <label>🔄 Queue & Stack Operations</label>
+                    <div class="control-row">
+                        <button class="btn-primary" onclick="addToQueue()">Add to Queue</button>
+                        <button class="btn-secondary" onclick="removeFromQueue()">Dequeue</button>
+                        <button class="btn-primary" onclick="pushToStack()">Push to Stack</button>
+                        <button class="btn-secondary" onclick="popFromStack()">Pop from Stack</button>
+                    </div>
+                </div>
+
+                <div class="action-container" >
+                    <label>🔗 LinkedList Operations</label>
+                    <div class="control-row">
+                        <button class="btn-warning" onclick="reverseLinkedList()">Reverse LinkedList</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="displays">
+
+                <div class="queue-stack-display">
+                    <h4>📥 Queue (FIFO) <span>First-In, First-Out</span></h4>
+                    <div class="queue-items items" id="queueDisplay"></div>
+                </div>
+
+                <div class="queue-stack-display">
+                    <h4>📚 Stack (LIFO) <span>Last-In, First-Out</span></h4>
+                    <div class="stack-items items" id="stackDisplay"></div>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="label">
+                    <h4>Name</h4>
+                    <h4>Grades</h4>
+                </div>
+
+                <div class="results" id="resultsContainer">
+                    
+                </div>
+            </div>
+        </div>
+        
+    </div>
+     <div id="info-section">
+        <h3>📋 Action</h3>
+        <p id="infoText">Displaying all student records. Use the controls above to search, sort, or manipulate data.</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
