@@ -187,27 +187,36 @@ function binarySearch(arr, searchName) {
 
 // Display students
 function displayStudents(studentList, highlightName = null) {
-    const container = document.getElementById('resultsContainer');
-    container.innerHTML = '';
+  const container = document.getElementById("resultsContainer");
+  container.innerHTML = "";
 
-    if (studentList.length === 0) {
-        container.innerHTML = '<div class="no-results">No students found</div>';
-        return;
+  if (studentList.length === 0) {
+    container.innerHTML = '<div class="no-results">No students found</div>';
+    return;
+  }
+
+  studentList.forEach((student) => {
+    const card = document.createElement("div");
+    card.className = "student-card";
+    card.draggable = true;
+    card.dataset.studentName = student.name;
+    card.dataset.studentGrade = student.grade;
+
+    if (highlightName && student.name === highlightName) {
+      card.classList.add("highlight");
     }
 
-    
-    studentList.forEach(student => {
-        const card = document.createElement('div');
-        card.className = 'student-card';
-        if (highlightName && student.name === highlightName) {
-            card.classList.add('highlight');
-        }
-        card.innerHTML = `
+    card.innerHTML = `
             <div class="student-name">${student.name}</div>
             <div class="student-grade">${student.grade}</div>
         `;
-        container.appendChild(card);
-    });
+
+    // Add drag event listeners
+    card.addEventListener("dragstart", handleDragStart);
+    card.addEventListener("dragend", handleDragEnd);
+
+    container.appendChild(card);
+  });
 }
 
 
@@ -380,3 +389,86 @@ function reverseLinkedList() {
 parseStudentData();
 updateQueueDisplay();
 updateStackDisplay();
+
+let draggedStudent = null;
+
+function handleDragStart(e) {
+  draggedStudent = {
+    name: e.target.dataset.studentName,
+    grade: parseInt(e.target.dataset.studentGrade),
+  };
+  e.target.classList.add("dragging");
+  e.dataTransfer.effectAllowed = "copy";
+}
+
+function handleDragEnd(e) {
+  e.target.classList.remove("dragging");
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "copy";
+}
+
+function handleDragEnter(e) {
+  if (e.target.classList.contains("queue-stack-display")) {
+    e.target.classList.add("drag-over");
+  }
+}
+
+function handleDragLeave(e) {
+  if (e.target.classList.contains("queue-stack-display")) {
+    e.target.classList.remove("drag-over");
+  }
+}
+
+function handleDropQueue(e) {
+  e.preventDefault();
+  e.target.classList.remove("drag-over");
+
+  if (draggedStudent) {
+    queue.push(draggedStudent);
+
+    // Remove student from current view
+    currentView = currentView.filter((s) => s.name !== draggedStudent.name);
+
+    updateQueueDisplay();
+    displayStudents(currentView);
+    document.getElementById(
+      "infoText"
+    ).textContent = `Dragged "${draggedStudent.name}" to Queue (removed from list)`;
+    draggedStudent = null;
+  }
+}
+
+function handleDropStack(e) {
+  e.preventDefault();
+  e.target.classList.remove("drag-over");
+
+  if (draggedStudent) {
+    stack.push(draggedStudent);
+
+    // Remove student from current view
+    currentView = currentView.filter((s) => s.name !== draggedStudent.name);
+
+    updateStackDisplay();
+    displayStudents(currentView);
+    document.getElementById(
+      "infoText"
+    ).textContent = `Dragged "${draggedStudent.name}" to Stack (removed from list)`;
+    draggedStudent = null;
+  }
+}
+// Add to initialization (after parseStudentData())
+const queueDisplay = document.getElementById("queueDisplay").parentElement;
+const stackDisplay = document.getElementById("stackDisplay").parentElement;
+
+queueDisplay.addEventListener("dragover", handleDragOver);
+queueDisplay.addEventListener("dragenter", handleDragEnter);
+queueDisplay.addEventListener("dragleave", handleDragLeave);
+queueDisplay.addEventListener("drop", handleDropQueue);
+
+stackDisplay.addEventListener("dragover", handleDragOver);
+stackDisplay.addEventListener("dragenter", handleDragEnter);
+stackDisplay.addEventListener("dragleave", handleDragLeave);
+stackDisplay.addEventListener("drop", handleDropStack);
