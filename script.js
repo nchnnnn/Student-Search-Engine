@@ -126,31 +126,38 @@ function populateLinkedList() {
   });
 }
 
-// Quick Sort implementation
-function quickSort(arr, order = "asc") {
-  if (arr.length <= 1) return arr;
-  const pivot = arr[Math.floor(arr.length / 2)];
-  const left = [];
-  const middle = [];
-  const right = [];
+// Insertion Sort implementation
+function insertionSort(arr, order = "asc") {
+  const sortedArr = [...arr];
 
-  for (let student of arr) {
-    if (order === "asc") {
-      if (student.grade < pivot.grade) left.push(student);
-      else if (student.grade === pivot.grade) middle.push(student);
-      else right.push(student);
-    } else if (order === "desc") {
-      if (student.grade > pivot.grade) left.push(student);
-      else if (student.grade === pivot.grade) middle.push(student);
-      else right.push(student);
-    } else if (order === "name") {
-      if (student.name < pivot.name) left.push(student);
-      else if (student.name === pivot.name) middle.push(student);
-      else right.push(student);
+  for (let i = 1; i < sortedArr.length; i++) {
+    let current = sortedArr[i];
+    let j = i - 1;
+
+    // Determine comparison based on sort order
+    while (j >= 0) {
+      let shouldMove = false;
+
+      if (order === "asc") {
+        shouldMove = sortedArr[j].grade > current.grade;
+      } else if (order === "desc") {
+        shouldMove = sortedArr[j].grade < current.grade;
+      } else if (order === "name") {
+        shouldMove = sortedArr[j].name > current.name;
+      }
+
+      if (shouldMove) {
+        sortedArr[j + 1] = sortedArr[j];
+        j--;
+      } else {
+        break;
+      }
     }
+
+    sortedArr[j + 1] = current;
   }
 
-  return [...quickSort(left, order), ...middle, ...quickSort(right, order)];
+  return sortedArr;
 }
 
 // Binary Search (requires sorted array)
@@ -245,8 +252,11 @@ function binarySearchStudent() {
   }
 }
 
+let currentFilter = "all";
+
 function sortStudents(order) {
-  currentView = quickSort([...students], order);
+  currentFilter = order;
+  currentView = insertionSort([...students], order);
   displayStudents(currentView);
 
   let orderText =
@@ -255,7 +265,7 @@ function sortStudents(order) {
       : order === "desc"
       ? "Descending (Grade)"
       : "Alphabetically";
-  let text = `Sorted using Quick Sort - Order: ${orderText}`;
+  let text = `Sorted using Insertion Sort - Order: ${orderText}`;
   notif(text);
 }
 
@@ -398,7 +408,16 @@ function displayLinkedList() {
     linkedList.reverse();
   }
 
-  const listArray = linkedList.toArray();
+  let listArray = linkedList.toArray();
+
+  if (
+    currentFilter === "asc" ||
+    currentFilter === "desc" ||
+    currentFilter === "name"
+  ) {
+    listArray = insertionSort(listArray, currentFilter);
+  }
+
   currentView = listArray;
   displayStudents(currentView);
 }
@@ -415,7 +434,17 @@ function reverseLinkedList() {
     linkedList.reverse();
   }
 
-  const listArray = linkedList.toArray();
+  let listArray = linkedList.toArray();
+
+  // Apply current filter/sort using Insertion Sort
+  if (
+    currentFilter === "asc" ||
+    currentFilter === "desc" ||
+    currentFilter === "name"
+  ) {
+    listArray = insertionSort(listArray, currentFilter);
+  }
+
   currentView = listArray;
   displayStudents(currentView);
 
@@ -427,7 +456,6 @@ function reverseLinkedList() {
   notif(text);
 }
 
-// Drag and drop handlers
 let draggedStudent = null;
 
 function handleDragStart(e) {
