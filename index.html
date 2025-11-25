@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Record System</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+
     <div class="container">
         <div class="header">
             <h1>📚 Student Search Engine (SSE)</h1>
@@ -19,12 +11,11 @@
                 <div class="control-row">
                     <input type="text" id="searchInput" placeholder="Enter student name (e.g., Escal)">
                     <select name="filter" id="filter">
-                        <option value="all">All</option>
-                        <option value="asc">Grades (ASC)</option>
-                        <option value="desc">Grades (DESC)</option>
-                        <option value="name">By Name</option>
-                    </select>
-                    
+    <option value="all">All</option>
+    <option value="asc">Grades (ASC)</option>
+    <option value="desc">Grades (DESC)</option>
+    <option value="name">By Name</option>
+</select>
                     <button class="btn-primary" onclick="binarySearchStudent()">Search</button>
                 </div>
             </div>
@@ -79,7 +70,3 @@
         <h3>📋 Action</h3>
         <p id="infoText">Displaying all student records. Use the controls above to search, sort, or manipulate data.</p>
     </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
