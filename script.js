@@ -276,29 +276,53 @@ function notif(text){
 
 // Queue operations
 function addToQueue() {
-    if (currentView.length === 0) {
-        alert('No students in current view to add to queue');
-        return;
-    }
-    const student = currentView[0];
-    queue.push(student);
-    updateQueueDisplay();
+  if (currentView.length === 0) {
+    alert("No students in current view to add to queue");
+    return;
+  }
+  const student = currentView[0];
 
-    let text = `Added "${student.name}" to Queue`
-    notif(text)
-    
+  // Check if student already in queue or stack
+  if (queue.some((s) => s.name === student.name)) {
+    alert(`${student.name} is already in the Queue!`);
+    return;
+  }
+  if (stack.some((s) => s.name === student.name)) {
+    alert(`${student.name} is already in the Stack!`);
+    return;
+  }
+
+  queue.push(student);
+
+  // Remove student from current view and main students array
+  currentView = currentView.filter((s) => s.name !== student.name);
+  students = students.filter((s) => s.name !== student.name);
+
+  updateQueueDisplay();
+  displayStudents(currentView);
+  updateStats();
+  document.getElementById(
+    "infoText"
+  ).textContent = `Added "${student.name}" to Queue (removed from list)`;
 }
 
 function removeFromQueue() {
-    if (queue.length === 0) {
-        alert('Queue is empty');
-        return;
-    }
-    const student = queue.shift();
-    updateQueueDisplay();
-    let text = `Removed "${student.name}" from Queue (FIFO)`;
-    notif(text);
- 
+  if (queue.length === 0) {
+    alert("Queue is empty");
+    return;
+  }
+  const student = queue.shift();
+
+  // Add student back to main students array and current view
+  students.push(student);
+  currentView.push(student);
+
+  updateQueueDisplay();
+  displayStudents(currentView);
+  updateStats();
+  document.getElementById(
+    "infoText"
+  ).textContent = `Removed "${student.name}" from Queue (added back to list)`;
 }
 
 function updateQueueDisplay() {
@@ -318,30 +342,53 @@ function updateQueueDisplay() {
 
 // Stack operations
 function pushToStack() {
-    if (currentView.length === 0) {
-        alert('No students in current view to add to stack');
-        return;
-    }
-    const student = currentView[0];
-    stack.push(student);
-    updateStackDisplay();
-    let text = `Pushed "${student.name}" to Stack`;
-    notif(text);
+  if (currentView.length === 0) {
+    alert("No students in current view to add to stack");
+    return;
+  }
+  const student = currentView[0];
 
+  // Check if student already in queue or stack
+  if (queue.some((s) => s.name === student.name)) {
+    alert(`${student.name} is already in the Queue!`);
+    return;
+  }
+  if (stack.some((s) => s.name === student.name)) {
+    alert(`${student.name} is already in the Stack!`);
+    return;
+  }
 
+  stack.push(student);
+
+  // Remove student from current view and main students array
+  currentView = currentView.filter((s) => s.name !== student.name);
+  students = students.filter((s) => s.name !== student.name);
+
+  updateStackDisplay();
+  displayStudents(currentView);
+  updateStats();
+  document.getElementById(
+    "infoText"
+  ).textContent = `Pushed "${student.name}" to Stack (removed from list)`;
 }
 
 function popFromStack() {
-    if (stack.length === 0) {
-        alert('Stack is empty');
-        return;
-    }
-    const student = stack.pop();
-    updateStackDisplay();
-    let text = `Popped "${student.name}" from Stack (LIFO)`;
-    notif(text);
-    
-        
+  if (stack.length === 0) {
+    alert("Stack is empty");
+    return;
+  }
+  const student = stack.pop();
+
+  // Add student back to main students array and current view
+  students.push(student);
+  currentView.push(student);
+
+  updateStackDisplay();
+  displayStudents(currentView);
+  updateStats();
+  document.getElementById(
+    "infoText"
+  ).textContent = `Popped "${student.name}" from Stack (added back to list)`;
 }
 
 function updateStackDisplay() {
@@ -427,32 +474,59 @@ function handleDropQueue(e) {
   e.target.classList.remove("drag-over");
 
   if (draggedStudent) {
+    // Check if student already in queue or stack
+    if (queue.some((s) => s.name === draggedStudent.name)) {
+      alert(`${draggedStudent.name} is already in the Queue!`);
+      draggedStudent = null;
+      return;
+    }
+    if (stack.some((s) => s.name === draggedStudent.name)) {
+      alert(`${draggedStudent.name} is already in the Stack!`);
+      draggedStudent = null;
+      return;
+    }
+
     queue.push(draggedStudent);
 
-    // Remove student from current view
+    // Remove student from current view and main students array
     currentView = currentView.filter((s) => s.name !== draggedStudent.name);
+    students = students.filter((s) => s.name !== draggedStudent.name);
 
     updateQueueDisplay();
     displayStudents(currentView);
+    updateStats();
     document.getElementById(
       "infoText"
     ).textContent = `Dragged "${draggedStudent.name}" to Queue (removed from list)`;
     draggedStudent = null;
   }
 }
-
 function handleDropStack(e) {
   e.preventDefault();
   e.target.classList.remove("drag-over");
 
   if (draggedStudent) {
+    // Check if student already in queue or stack
+    if (queue.some((s) => s.name === draggedStudent.name)) {
+      alert(`${draggedStudent.name} is already in the Queue!`);
+      draggedStudent = null;
+      return;
+    }
+    if (stack.some((s) => s.name === draggedStudent.name)) {
+      alert(`${draggedStudent.name} is already in the Stack!`);
+      draggedStudent = null;
+      return;
+    }
+
     stack.push(draggedStudent);
 
-    // Remove student from current view
+    // Remove student from current view and main students array
     currentView = currentView.filter((s) => s.name !== draggedStudent.name);
+    students = students.filter((s) => s.name !== draggedStudent.name);
 
     updateStackDisplay();
     displayStudents(currentView);
+    updateStats();
     document.getElementById(
       "infoText"
     ).textContent = `Dragged "${draggedStudent.name}" to Stack (removed from list)`;
