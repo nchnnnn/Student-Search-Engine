@@ -561,3 +561,17 @@ stackDisplay.addEventListener("dragover", handleDragOver);
 stackDisplay.addEventListener("dragenter", handleDragEnter);
 stackDisplay.addEventListener("dragleave", handleDragLeave);
 stackDisplay.addEventListener("drop", handleDropStack);
+
+
+// Filter change handler - ADD AT THE BOTTOM
+document.getElementById("filter").addEventListener("change", function (event) {
+  const filterValue = event.target.value;
+  
+  if (filterValue === "all") {
+    currentFilter = "all";
+    displayLinkedList();
+    notif("Displaying all students");
+  } else if (filterValue === "asc" || filterValue === "desc" || filterValue === "name") {
+    sortStudents(filterValue);
+  }
+});

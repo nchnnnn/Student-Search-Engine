@@ -18,13 +18,13 @@
                 <label>🔍 Binary Search (Search by Name)</label>
                 <div class="control-row">
                     <input type="text" id="searchInput" placeholder="Enter student name (e.g., Escal)">
-                    <select name="filter"  id="filter">
-                        <option selected onclick="displayLinkedList()" value="all">All</option>
-                        <option onclick="sortStudents('asc')"  value="asc">Grades (ASC)</option>
-                        <option onclick="sortStudents('desc')"  value="desc">Grades (DESC)</option>
-                        <option onclick="sortStudents('name')"  value="name">By Name</option>
-
+                    <select name="filter" id="filter">
+                        <option value="all">All</option>
+                        <option value="asc">Grades (ASC)</option>
+                        <option value="desc">Grades (DESC)</option>
+                        <option value="name">By Name</option>
                     </select>
+                    
                     <button class="btn-primary" onclick="binarySearchStudent()">Search</button>
                 </div>
             </div>
