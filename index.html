@@ -11,6 +11,7 @@
         <div class="header">
             <h1>📚 Student Search Engine (SSE)</h1>
             <p>Data Structures & Algorithms </p>
+            <p>Section: 2-BSIT 4</p>
         </div>
 
         <div class="controls">
@@ -19,45 +20,12 @@
                 <div class="control-row">
                     <input type="text" id="searchInput" placeholder="Enter student name (e.g., Escal)">
                     <select name="filter" id="filter">
-    <option value="all">All</option>
-    <option value="asc">Grades (ASC)</option>
-    <option value="desc">Grades (DESC)</option>
-    <option value="name">By Name</option>
-</select>
+                        <option value="all">All</option>
+                        <option value="asc">Grades (ASC)</option>
+                        <option value="desc">Grades (DESC)</option>
+                        <option value="name">By Name</option>
+                    </select>
                     <button class="btn-primary" onclick="binarySearchStudent()">Search</button>
-                </div>
-            </div>
-
-           
-            <div class="control-action">
-                <div class="action-container">
-                    <label>🔄 Queue & Stack Operations</label>
-                    <div class="control-row">
-                        <button class="btn-primary" onclick="addToQueue()">Add to Queue</button>
-                        <button class="btn-secondary" onclick="removeFromQueue()">Dequeue</button>
-                        <button class="btn-primary" onclick="pushToStack()">Push to Stack</button>
-                        <button class="btn-secondary" onclick="popFromStack()">Pop from Stack</button>
-                    </div>
-                </div>
-
-                <div class="action-container" >
-                    <label>🔗 LinkedList Operations</label>
-                    <div class="control-row">
-                        <button class="btn-warning" onclick="reverseLinkedList()">Reverse LinkedList</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="displays">
-
-                <div class="queue-stack-display">
-                    <h4>📥 Queue (FIFO) <span>First-In, First-Out</span></h4>
-                    <div class="queue-items items" id="queueDisplay"></div>
-                </div>
-
-                <div class="queue-stack-display">
-                    <h4>📚 Stack (LIFO) <span>Last-In, First-Out</span></h4>
-                    <div class="stack-items items" id="stackDisplay"></div>
                 </div>
             </div>
 
@@ -70,11 +38,88 @@
                 <div class="results" id="resultsContainer">
                     
                 </div>
+
+                <!-- Add Student Form -->
+                <div class="add-student-section">
+                    <button class="btn-toggle" onclick="toggleAddForm()">
+                        <span id="toggleIcon">+</span> Add New Student
+                    </button>
+                    
+                    <div class="add-student-form" id="addStudentForm">
+                        <h4>📝 Add New Student</h4>
+                        
+                        <div class="form-group">
+                            <label>Full Name (Last, First M.I.)</label>
+                            <input type="text" id="studentName" placeholder="e.g., Doe, John A.">
+                        </div>
+                        
+                        <div class="grades-input">
+                            
+                            
+                            <div class="form-group">
+                                <label>1st Semester (50%)</label>
+                                <input type="number" id="midterm" min="0" max="100" placeholder="0-100">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>2nd Semester (50%)</label>
+                                <input type="number" id="finals" min="0" max="100" placeholder="0-100">
+                            </div>
+                        </div>
+                        
+                        <div class="final-grade-display">
+                            <strong>Final Grade:</strong> <span id="calculatedGrade">--</span>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button class="btn-success" onclick="addStudent()">Add Student</button>
+                            <button class="btn-secondary" onclick="clearForm()">Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal for Edit/Delete -->
+            <div id="studentModal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h3 id="modalStudentName">Student Details</h3>
+                    
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Full Name (Last, First M.I.)</label>
+                            <input type="text" id="modalStudentNameInput" placeholder="e.g., Doe, John A.">
+                        </div>
+                        
+                        <div class="grades-input">
+                            <div class="form-group">
+                                <label>1st Semester (50%)</label>
+                                <input type="number" id="modalMidterm" min="0" max="100" placeholder="0-100">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>2nd Semester (50%)</label>
+                                <input type="number" id="modalFinals" min="0" max="100" placeholder="0-100">
+                            </div>
+                        </div>
+                        
+                        <div class="final-grade-display">
+                            <strong>Final Grade:</strong> <span id="modalCalculatedGrade">--</span>
+                        </div>
+                        
+                        <div class="modal-actions">
+                            <button class="btn-success" onclick="saveStudentFromModal()">Save Changes</button>
+                            <button class="btn-danger" onclick="deleteStudentFromModal()">Delete Student</button>
+                            <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
     </div>
-     <div id="info-section">
+
+    <div id="info-section">
         <h3>📋 Action</h3>
         <p id="infoText">Displaying all student records. Use the controls above to search, sort, or manipulate data.</p>
     </div>

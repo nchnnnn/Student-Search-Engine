@@ -133,8 +133,6 @@ function insertionSort(arr, order = "asc") {
   for (let i = 1; i < sortedArr.length; i++) {
     let current = sortedArr[i];
     let j = i - 1;
-
-    // Determine comparison based on sort order
     while (j >= 0) {
       let shouldMove = false;
 
@@ -202,9 +200,10 @@ function displayStudents(studentList, highlightName = null) {
   studentList.forEach((student) => {
     const card = document.createElement("div");
     card.className = "student-card";
-    card.draggable = true;
     card.dataset.studentName = student.name;
     card.dataset.studentGrade = student.grade;
+    card.dataset.studentMidterm = student.midterm || "";
+    card.dataset.studentFinals = student.finals || "";
 
     if (highlightName && student.name === highlightName) {
       card.classList.add("highlight");
@@ -215,8 +214,10 @@ function displayStudents(studentList, highlightName = null) {
             <div class="student-grade">${student.grade}</div>
         `;
 
-    card.addEventListener("dragstart", handleDragStart);
-    card.addEventListener("dragend", handleDragEnd);
+    // Click to open modal
+    card.addEventListener("click", function () {
+      openStudentModal(student);
+    });
 
     container.appendChild(card);
   });
@@ -546,6 +547,9 @@ function handleDropStack(e) {
 
 // Initialize
 parseStudentData();
+
+// Remove or comment out these lines since the elements don't exist
+/*
 updateQueueDisplay();
 updateStackDisplay();
 
@@ -561,9 +565,9 @@ stackDisplay.addEventListener("dragover", handleDragOver);
 stackDisplay.addEventListener("dragenter", handleDragEnter);
 stackDisplay.addEventListener("dragleave", handleDragLeave);
 stackDisplay.addEventListener("drop", handleDropStack);
+*/
 
-
-// Filter change handler - ADD AT THE BOTTOM
+// Filter change handler - Keep this
 document.getElementById("filter").addEventListener("change", function (event) {
   const filterValue = event.target.value;
   
@@ -573,5 +577,418 @@ document.getElementById("filter").addEventListener("change", function (event) {
     notif("Displaying all students");
   } else if (filterValue === "asc" || filterValue === "desc" || filterValue === "name") {
     sortStudents(filterValue);
+  }
+});
+
+
+
+// Add Student Functions
+function toggleAddForm() {
+    const form = document.getElementById('addStudentForm');
+    const btn = document.querySelector('.btn-toggle');
+    
+    form.classList.toggle('show');
+    btn.classList.toggle('active');
+}
+
+function calculateFinalGrade() {
+    const midterm = parseFloat(document.getElementById('midterm').value) || 0;
+    const finals = parseFloat(document.getElementById('finals').value) || 0;
+    
+    const finalGrade =  (midterm * 0.50) + (finals * 0.50);
+    
+    document.getElementById('calculatedGrade').textContent = finalGrade.toFixed(2);
+    
+    return Math.round(finalGrade);
+}
+
+// Add event listeners for real-time calculation
+
+document.getElementById('midterm').addEventListener('input', calculateFinalGrade);
+document.getElementById('finals').addEventListener('input', calculateFinalGrade);
+
+function addStudent() {
+    const name = document.getElementById('studentName').value.trim();
+    const midterm = parseFloat(document.getElementById('midterm').value);
+    const finals = parseFloat(document.getElementById('finals').value);
+    
+    // Validation
+    if (!name) {
+        alert('Please enter student name');
+        return;
+    }
+    
+    if (isNaN(midterm) || isNaN(finals)) {
+        alert('Please enter all grade components (Midterm, Finals)');
+        return;
+    }
+    
+    if ( midterm < 0 || midterm > 100 || finals < 0 || finals > 100) {
+        alert('Grades must be between 0 and 100');
+        return;
+    }
+    
+    // Check if student already exists
+    if (students.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+        alert('Student already exists!');
+        return;
+    }
+    
+    // Calculate final grade
+    const finalGrade = Math.round( (midterm * 0.50) + (finals * 0.50));
+    
+    // Create new student object
+    const newStudent = {
+        name: name,
+        grade: finalGrade,
+        midterm: midterm,
+        finals: finals
+    };
+    
+    // Add to students array
+    students.push(newStudent);
+    
+    // Update LinkedList
+    linkedList.clear();
+    students.forEach(student => {
+        linkedList.add(student);
+    });
+    
+    // Refresh display based on current filter
+    if (currentFilter === 'all') {
+        displayLinkedList();
+    } else {
+        sortStudents(currentFilter);
+    }
+    
+    // Clear form and close
+    clearForm();
+    toggleAddForm();
+    
+    // Show notification
+    notif(`Added "${name}" with final grade: ${finalGrade}`);
+}
+
+function clearForm() {
+  document.getElementById("studentName").value = "";
+  document.getElementById("midterm").value = "";
+  document.getElementById("finals").value = "";
+  document.getElementById("calculatedGrade").textContent = "--";
+
+  // Reset editing state
+  editingStudentName = null;
+  const addButton = document.querySelector(".form-actions .btn-success");
+  addButton.textContent = "Add Student";
+  addButton.onclick = addStudent;
+}
+
+// Add these variables at the top with other global variables
+let editingStudentName = null;
+
+// Add these functions anywhere in your script.js
+
+function editStudent(studentName) {
+    const student = students.find(s => s.name === studentName);
+    if (!student) {
+        alert('Student not found!');
+        return;
+    }
+    
+    // Store the original name for updating
+    editingStudentName = studentName;
+    
+    // Populate the form with student data
+    document.getElementById('studentName').value = student.name;
+    document.getElementById('midterm').value = student.midterm || '';
+    document.getElementById('finals').value = student.finals || '';
+    
+    // Calculate and show the grade
+    calculateFinalGrade();
+    
+    // Show the form
+    const form = document.getElementById('addStudentForm');
+    const btn = document.querySelector('.btn-toggle');
+    if (!form.classList.contains('show')) {
+        form.classList.add('show');
+        btn.classList.add('active');
+    }
+    
+    // Change button text to "Update"
+    const addButton = document.querySelector('.form-actions .btn-success');
+    addButton.textContent = 'Update Student';
+    addButton.onclick = updateStudent;
+    
+    notif(`Editing "${studentName}"`);
+}
+
+function updateStudent() {
+    const name = document.getElementById('studentName').value.trim();
+    const midterm = parseFloat(document.getElementById('midterm').value);
+    const finals = parseFloat(document.getElementById('finals').value);
+    
+    // Validation
+    if (!name) {
+        alert('Please enter student name');
+        return;
+    }
+    
+    if (isNaN(midterm) || isNaN(finals)) {
+        alert('Please enter all grade components (Midterm, Finals)');
+        return;
+    }
+    
+    if (midterm < 0 || midterm > 100 || finals < 0 || finals > 100) {
+        alert('Grades must be between 0 and 100');
+        return;
+    }
+    
+    // Check if new name already exists (but not if it's the same student)
+    if (name !== editingStudentName && students.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+        alert('A student with this name already exists!');
+        return;
+    }
+    
+    // Calculate final grade
+    const finalGrade = Math.round((midterm * 0.50) + (finals * 0.50));
+    
+    // Find and update the student
+    const studentIndex = students.findIndex(s => s.name === editingStudentName);
+    if (studentIndex !== -1) {
+        students[studentIndex] = {
+            name: name,
+            grade: finalGrade,
+            midterm: midterm,
+            finals: finals
+        };
+        
+        // Update LinkedList
+        linkedList.clear();
+        students.forEach(student => {
+            linkedList.add(student);
+        });
+        
+        // Refresh display
+        if (currentFilter === 'all') {
+            displayLinkedList();
+        } else {
+            sortStudents(currentFilter);
+        }
+        
+        // Reset form
+        clearForm();
+        toggleAddForm();
+        editingStudentName = null;
+        
+        // Reset button back to "Add Student"
+        const addButton = document.querySelector('.form-actions .btn-success');
+        addButton.textContent = 'Add Student';
+        addButton.onclick = addStudent;
+        
+        notif(`Updated "${name}" with final grade: ${finalGrade}`);
+    }
+}
+
+function deleteStudent(studentName) {
+    if (!confirm(`Are you sure you want to delete "${studentName}"?`)) {
+        return;
+    }
+    
+    // Check if student is in queue or stack
+    if (queue.some(s => s.name === studentName)) {
+        alert(`Cannot delete "${studentName}" - student is currently in the Queue!`);
+        return;
+    }
+    
+    if (stack.some(s => s.name === studentName)) {
+        alert(`Cannot delete "${studentName}" - student is currently in the Stack!`);
+        return;
+    }
+    
+    // Remove student from array
+    students = students.filter(s => s.name !== studentName);
+    
+    // Update LinkedList
+    linkedList.clear();
+    students.forEach(student => {
+        linkedList.add(student);
+    });
+    
+    // Refresh display
+    if (currentFilter === 'all') {
+        displayLinkedList();
+    } else {
+        sortStudents(currentFilter);
+    }
+    
+    notif(`Deleted "${studentName}" from records`);
+}
+
+let currentEditingStudent = null;
+
+function openStudentModal(student) {
+  currentEditingStudent = student;
+
+  // Populate modal
+  document.getElementById("modalStudentName").textContent = student.name;
+  document.getElementById("modalStudentNameInput").value = student.name;
+  document.getElementById("modalMidterm").value = student.midterm || "";
+  document.getElementById("modalFinals").value = student.finals || "";
+
+  // Calculate grade
+  calculateModalGrade();
+
+  // Show modal
+  document.getElementById("studentModal").style.display = "block";
+}
+
+function closeModal() {
+  document.getElementById("studentModal").style.display = "none";
+  currentEditingStudent = null;
+}
+
+function calculateModalGrade() {
+  const midterm =
+    parseFloat(document.getElementById("modalMidterm").value) || 0;
+  const finals = parseFloat(document.getElementById("modalFinals").value) || 0;
+
+  const finalGrade = midterm * 0.5 + finals * 0.5;
+
+  document.getElementById("modalCalculatedGrade").textContent =
+    finalGrade.toFixed(2);
+
+  return Math.round(finalGrade);
+}
+
+// Add event listeners for real-time calculation in modal
+document.addEventListener("DOMContentLoaded", function () {
+  document
+    .getElementById("modalMidterm")
+    .addEventListener("input", calculateModalGrade);
+  document
+    .getElementById("modalFinals")
+    .addEventListener("input", calculateModalGrade);
+});
+
+function saveStudentFromModal() {
+  if (!currentEditingStudent) return;
+
+  const originalName = currentEditingStudent.name;
+  const newName = document.getElementById("modalStudentNameInput").value.trim();
+  const midterm = parseFloat(document.getElementById("modalMidterm").value);
+  const finals = parseFloat(document.getElementById("modalFinals").value);
+
+  // Validation
+  if (!newName) {
+    alert("Please enter student name");
+    return;
+  }
+
+  if (isNaN(midterm) || isNaN(finals)) {
+    alert("Please enter all grade components");
+    return;
+  }
+
+  if (midterm < 0 || midterm > 100 || finals < 0 || finals > 100) {
+    alert("Grades must be between 0 and 100");
+    return;
+  }
+
+  // Check if new name already exists
+  if (
+    newName !== originalName &&
+    students.some((s) => s.name.toLowerCase() === newName.toLowerCase())
+  ) {
+    alert("A student with this name already exists!");
+    return;
+  }
+
+  // Calculate final grade
+  const finalGrade = Math.round(midterm * 0.5 + finals * 0.5);
+
+  // Find and update
+  const studentIndex = students.findIndex((s) => s.name === originalName);
+  if (studentIndex !== -1) {
+    students[studentIndex] = {
+      name: newName,
+      grade: finalGrade,
+      midterm: midterm,
+      finals: finals,
+    };
+
+    // Update LinkedList
+    linkedList.clear();
+    students.forEach((student) => {
+      linkedList.add(student);
+    });
+
+    // Refresh display
+    if (currentFilter === "all") {
+      displayLinkedList();
+    } else {
+      sortStudents(currentFilter);
+    }
+
+    closeModal();
+    notif(`Updated "${newName}" with final grade: ${finalGrade}`);
+  }
+}
+
+function deleteStudentFromModal() {
+  if (!currentEditingStudent) return;
+
+  const studentName = currentEditingStudent.name;
+
+  if (!confirm(`Are you sure you want to delete "${studentName}"?`)) {
+    return;
+  }
+
+  // Check if student is in queue or stack
+  if (queue.some((s) => s.name === studentName)) {
+    alert(
+      `Cannot delete "${studentName}" - student is currently in the Queue!`
+    );
+    return;
+  }
+
+  if (stack.some((s) => s.name === studentName)) {
+    alert(
+      `Cannot delete "${studentName}" - student is currently in the Stack!`
+    );
+    return;
+  }
+
+  // Remove student
+  students = students.filter((s) => s.name !== studentName);
+
+  // Update LinkedList
+  linkedList.clear();
+  students.forEach((student) => {
+    linkedList.add(student);
+  });
+
+  // Refresh display
+  if (currentFilter === "all") {
+    displayLinkedList();
+  } else {
+    sortStudents(currentFilter);
+  }
+
+  closeModal();
+  notif(`Deleted "${studentName}" from records`);
+}
+
+// Close modal when clicking outside
+window.onclick = function (event) {
+  const modal = document.getElementById("studentModal");
+  if (event.target == modal) {
+    closeModal();
+  }
+};
+
+// Close modal with close button
+document.addEventListener("DOMContentLoaded", function () {
+  const closeBtn = document.querySelector(".close-modal");
+  if (closeBtn) {
+    closeBtn.onclick = closeModal;
   }
 });
